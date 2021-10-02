@@ -31,7 +31,7 @@ cqnTools.addCommand('Mark all tracks', 'markAllTracks.get_Properties()', 'Shift+
 '''
 ##############################################################################
 
-
+import os
 import nuke
 
 
@@ -84,6 +84,19 @@ def infoNode(selNode, oldLabel, oldSize, oldOrder):
 
     # function for Sticky Note, Backdrop and Dot.
 
+
+    icon_folder = 'C:/Program Files/Nuke11.3v1/plugins/icons/'
+
+    path, shots, files = next(os.walk(icon_folder))
+
+    icons = str(files)
+
+    icons = icons.replace('[', '')
+    icons = icons.replace(']', '')
+    icons = icons.replace("'", '')
+    icons = icons.replace(", ", ' ')
+    icons = 'none ' + icons
+
     # create a panel
     z = nuke.Panel('Labelizer...')
 
@@ -95,6 +108,8 @@ def infoNode(selNode, oldLabel, oldSize, oldOrder):
 
     if (selNode.Class()) == ('StickyNote'):
         z.addEnumerationPulldown('align', '<left> <center> <right>')
+
+    z.addEnumerationPulldown('icon', icons)
 
     z.setWidth(800)
     result = z.show()
@@ -111,21 +126,48 @@ def infoNode(selNode, oldLabel, oldSize, oldOrder):
 
         if selNode.Class() == ('BackdropNode'): # change Backdrop
 
-            selNode['label'].setValue('<center>' + newLabel)
+            #selNode['label'].setValue('<center>' + newLabel)
             selNode['note_font_size'].setValue(float(newSize))
 
             newOrder = int(z.value('order'))
             selNode['z_order'].setValue(newOrder)
 
+            icon = z.value('icon')
+            insertIcon = ('<img src = "%s">' %(icon))
+
+            if icon == 'none':
+                selNode['label'].setValue('<center>' + newLabel)
+            else:
+                selNode['label'].setValue('<center>' + insertIcon + newLabel)
+
+
         elif selNode.Class() == ('StickyNote'): # change Sticky Note
             newAlign = z.value('align')
 
-            selNode['label'].setValue(newAlign + newLabel)
+            #selNode['label'].setValue(newAlign + newLabel)
             selNode['note_font_size'].setValue(float(newSize))
 
+            icon = z.value('icon')
+            insertIcon = ('<img src = "%s">' %(icon))
+
+            if icon == 'none':
+                selNode['label'].setValue('<center>' + newLabel)
+            else:
+                selNode['label'].setValue('<center>' + insertIcon + newLabel)
+
+
         else: # change Dot
-            selNode['label'].setValue(newLabel)
+            #selNode['label'].setValue(newLabel)
             selNode['note_font_size'].setValue(float(newSize))
+
+            icon = z.value('icon')
+            insertIcon = ('<img src = "%s">' %(icon))
+
+            if icon == 'none':
+                selNode['label'].setValue('<center>' + newLabel)
+            else:
+                selNode['label'].setValue('<center>' + insertIcon + newLabel)
+
 
     # if user hits Cancel
     else:
